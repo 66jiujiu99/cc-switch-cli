@@ -372,7 +372,22 @@ impl App {
                 }
                 Action::ProviderQuotaRefresh { id: row.id.clone() }
             }
+            Intent::ImportDeeplink => {
+                self.open_deeplink_import_prompt(String::new());
+                Action::None
+            }
         }
+    }
+
+    /// Open the deep link import overlay, optionally prefilled with a URL
+    /// (used to preserve a rejected paste for editing).
+    pub(crate) fn open_deeplink_import_prompt(&mut self, initial: String) {
+        self.overlay = Overlay::TextInput(TextInputState {
+            title: texts::tui_deeplink_import_title().to_string(),
+            prompt: texts::tui_deeplink_import_prompt().to_string(),
+            input: TextInput::new(initial),
+            submit: TextSubmit::DeeplinkUrl,
+        });
     }
 
     pub(crate) fn on_mcp_key(&mut self, key: KeyEvent, data: &UiData) -> Action {

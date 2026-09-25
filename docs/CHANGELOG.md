@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.11.0] - 2026-09-25
+
+### Added
+
+- **Deep Link / Interactive Paste**: `cc-switch deeplink` now accepts being called without a URL argument and prompts to paste a `ccswitch://v1/import?...` deep link interactively; the pasted input is trimmed before parsing.
+- **Deep Link / TUI Import**: Added an `i` keybinding on the TUI Providers page that opens a paste overlay for `ccswitch://` deep links. The URL is parsed up front so invalid links keep the pasted text in the overlay for editing, successful imports reload TUI data and show a toast naming the imported resource, and the target app/resource type always come from the URL itself (provider, MCP, prompt, or skill).
+- **Docs / Deep Link**: Documented the `deeplink` command's paste flow and the TUI `i` shortcut in both READMEs.
+
+### Changed
+
+- **Fork / Release Targets**: Installation commands, the release workflow metadata, the self-update repository, and README links now point at this fork's repository (`66jiujiu99/cc-switch-cli`). Upstream attribution and upstream issue references are preserved.
+- **Updater / Signing Key**: Rotated the embedded updater minisign public key to this fork's own keypair; releases must be signed with the fork's private key (GitHub secret `CC_SWITCH_MINISIGN_SECRET_KEY`).
+
+### Upgrade notes
+
+- The database schema remains at v18; upgrading from v5.10.5 requires no schema migration.
+- Binaries from the upstream SaladDay fork verify updates against the previous public key; switching to this fork's releases requires a fresh install (or a one-time manual binary replacement). `cc-switch update` inside this fork verifies against the new key.
+
 ## [5.10.5] - 2026-09-15
 
 ### Added

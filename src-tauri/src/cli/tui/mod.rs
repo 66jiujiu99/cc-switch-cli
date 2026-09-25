@@ -2265,6 +2265,7 @@ fn cache_invalidation_for_action(action: &Action) -> CacheInvalidation {
         | Action::CancelUpdateCheck => CacheInvalidation::None,
 
         Action::ConfigImport { .. }
+        | Action::DeeplinkImport { .. }
         | Action::ConfigRestoreBackup { .. }
         | Action::ConfigReset
         | Action::ConfigWebDavDownload

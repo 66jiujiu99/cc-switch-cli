@@ -228,6 +228,11 @@ pub enum Action {
     ConfigImport {
         path: String,
     },
+    /// Import a resource (provider/mcp/prompt/skill) from a ccswitch://
+    /// deep link URL pasted into the text-input overlay.
+    DeeplinkImport {
+        url: String,
+    },
     ConfigBackup {
         name: Option<String>,
     },

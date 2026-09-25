@@ -570,6 +570,26 @@ impl App {
                     Action::None
                 }
             },
+            TextSubmit::DeeplinkUrl => {
+                if raw.is_empty() {
+                    self.push_toast(texts::deeplink_url_empty_error(), ToastKind::Warning);
+                    self.open_deeplink_import_prompt(raw);
+                    return Action::None;
+                }
+                // Parse up front so a rejected paste stays in the overlay for
+                // editing instead of losing a potentially very long URL.
+                match crate::parse_deeplink_url(&raw) {
+                    Ok(_) => Action::DeeplinkImport { url: raw },
+                    Err(err) => {
+                        self.push_toast(
+                            texts::tui_toast_deeplink_invalid(&err.to_string()),
+                            ToastKind::Error,
+                        );
+                        self.open_deeplink_import_prompt(raw);
+                        Action::None
+                    }
+                }
+            }
             TextSubmit::ProviderCustomUserAgent => {
                 if let Some(FormState::ProviderAdd(provider)) = self.form.as_mut() {
                     provider.custom_user_agent.set(raw);

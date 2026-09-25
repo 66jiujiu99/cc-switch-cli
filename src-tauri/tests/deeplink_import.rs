@@ -129,6 +129,69 @@ fn deeplink_import_codex_provider_builds_auth_and_config() {
     assert!(persisted.is_some(), "provider should be persisted to db");
 }
 
+/// Mirrors the pasted format distributed by provider sites (see the `deeplink`
+/// command's interactive paste flow): `name` encodes a space as `+`,
+/// `usageScript` is base64, `usageAutoInterval` is numeric.
+#[test]
+fn deeplink_import_codex_provider_with_usage_script_from_pasted_format() {
+    let _guard = lock_test_mutex();
+    reset_test_fs();
+    let _home = ensure_test_home();
+
+    let script = r#"({
+    request: {
+        url: "{{baseUrl}}/v1/usage",
+        method: "GET",
+        headers: { "Authorization": "Bearer {{apiKey}}" }
+    },
+    extractor: function(response) {
+        return { isValid: true, remaining: 1, unit: "USD" };
+    }
+})"#;
+    let encoded = BASE64_URL_SAFE_NO_PAD.encode(script);
+    let url = format!(
+        "ccswitch://v1/import?resource=provider&app=codex&model=gpt-6-astra&name=UU+API&homepage=https%3A%2F%2Fuuapi.example&endpoint=https%3A%2F%2Fuuapi.example%2Fv1&apiKey=sk-test-usage-key&configFormat=json&usageEnabled=true&usageScript={encoded}&usageAutoInterval=30"
+    );
+
+    let request = parse_deeplink_url(&url).expect("parse pasted-format deeplink url");
+    assert_eq!(request.name.as_deref(), Some("UU API"));
+
+    let mut config = MultiAppConfig::default();
+    config.ensure_app(&AppType::Codex);
+
+    let state = state_from_config(config);
+    let provider_id = import_provider_from_deeplink(&state, request)
+        .expect("import provider from pasted-format deeplink");
+
+    let guard = state.config.read().expect("read config");
+    let manager = guard
+        .get_manager(&AppType::Codex)
+        .expect("codex manager should exist");
+    let provider = manager
+        .providers
+        .get(&provider_id)
+        .expect("provider created via deeplink");
+    assert_eq!(
+        provider.name, "UU API",
+        "`+` in name should decode to a space"
+    );
+    let usage_script = provider
+        .meta
+        .as_ref()
+        .and_then(|meta| meta.usage_script.as_ref())
+        .expect("usage script should be stored on the provider");
+    assert!(usage_script.enabled);
+    assert!(usage_script.code.contains("{{baseUrl}}/v1/usage"));
+    assert_eq!(usage_script.auto_query_interval, Some(30));
+    drop(guard);
+
+    let persisted = state
+        .db
+        .get_provider_by_id(&provider_id, AppType::Codex.as_str())
+        .expect("read provider from db");
+    assert!(persisted.is_some(), "provider should be persisted to db");
+}
+
 /// Regression for issue #333: a deeplink-imported Codex provider must carry a
 /// non-empty `name` in its `[model_providers.custom]` table, otherwise Codex
 /// refuses to load config.toml ("provider name must not be empty"). Mirrors the
@@ -591,7 +654,7 @@ fn deeplink_command_execute_dispatches_by_resource_type() {
         let _home = ensure_test_home();
 
         let cmd = cc_switch_lib::cli::commands::deeplink::DeeplinkCommand {
-            url: url.to_string(),
+            url: Some(url.to_string()),
         };
         cc_switch_lib::cli::commands::deeplink::execute(cmd, None)
             .unwrap_or_else(|e| panic!("[{resource}] execute() should succeed, got: {e}"));

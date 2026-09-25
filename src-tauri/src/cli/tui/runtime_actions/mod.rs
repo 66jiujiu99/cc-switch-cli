@@ -15,6 +15,7 @@ use super::terminal::{ClipboardCopyOutcome, TuiTerminal};
 mod claude_temp_launch;
 mod codex_temp_launch;
 mod config;
+mod deeplink;
 mod editor;
 mod helpers;
 mod mcp;
@@ -1001,6 +1002,7 @@ pub(crate) fn handle_action(
         Action::ConfigExport { path } => config::export(&mut ctx, path),
         Action::ConfigShowFull => config::show_full(&mut ctx),
         Action::ConfigImport { path } => config::import(&mut ctx, path),
+        Action::DeeplinkImport { url } => deeplink::import(&mut ctx, url),
         Action::ConfigBackup { name } => config::backup(&mut ctx, name),
         Action::ConfigRestoreBackup { id } => config::restore_backup(&mut ctx, id),
         Action::ConfigValidate => config::validate(&mut ctx),
@@ -2026,6 +2028,40 @@ mod tests {
             Some(toast)
                 if toast.kind == super::super::app::ToastKind::Success
                     && toast.message == texts::tui_toast_visible_apps_saved()
+        ));
+    }
+
+    #[test]
+    #[serial(home_settings)]
+    fn deeplink_import_action_imports_provider_and_shows_success_toast() {
+        let temp_home = TempDir::new().expect("create temp home");
+        let _env = EnvGuard::set_home(temp_home.path());
+
+        let mut app = App::new(Some(AppType::Claude));
+        let mut data = UiData::default();
+
+        run_action(
+            &mut app,
+            &mut data,
+            Action::DeeplinkImport {
+                url: "ccswitch://v1/import?resource=provider&app=claude&name=DeepLink%20Runtime&endpoint=https%3A%2F%2Fapi.example.com%2Fv1&apiKey=sk-test-runtime-key"
+                    .to_string(),
+            },
+        )
+        .expect("import provider from deep link action");
+
+        assert!(
+            data.providers
+                .rows
+                .iter()
+                .any(|row| row.provider.name == "DeepLink Runtime"),
+            "imported provider should be visible after the data reload"
+        );
+        assert!(matches!(
+            app.toast.as_ref(),
+            Some(toast)
+                if toast.kind == super::super::app::ToastKind::Success
+                    && toast.message.contains("DeepLink Runtime")
         ));
     }
 

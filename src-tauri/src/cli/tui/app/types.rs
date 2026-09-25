@@ -4525,6 +4525,7 @@ pub enum TextSubmit {
     },
     UsageCustomRange,
     ProviderCustomUserAgent,
+    DeeplinkUrl,
     CodexModelCatalogField {
         row: Option<usize>,
         field: form::CodexModelCatalogField,
@@ -4547,6 +4548,13 @@ impl std::fmt::Debug for TextInputState {
         match &self.submit {
             TextSubmit::SettingsOutboundProxyUrl => {
                 input.value = crate::proxy::http_client::mask_url(&input.value);
+            }
+            TextSubmit::DeeplinkUrl => {
+                // A deep link URL carries an apiKey query parameter; keep it
+                // out of debug logs entirely.
+                if !input.value.is_empty() {
+                    input.value = "***".to_string();
+                }
             }
             TextSubmit::SettingsOutboundProxyUsername
             | TextSubmit::SettingsOutboundProxyPassword => {

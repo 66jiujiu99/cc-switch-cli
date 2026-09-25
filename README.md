@@ -6,8 +6,8 @@
 
 **Manage Claude Code, Codex, Gemini, OpenCode, Hermes, OpenClaw, and Pi from one interactive TUI or scriptable CLI.**
 
-[![Version](https://img.shields.io/badge/version-5.10.5-blue.svg)](https://github.com/saladday/cc-switch-cli/releases)
-[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](https://github.com/saladday/cc-switch-cli/releases)
+[![Version](https://img.shields.io/badge/version-5.11.0-blue.svg)](https://github.com/66jiujiu99/cc-switch-cli/releases)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](https://github.com/66jiujiu99/cc-switch-cli/releases)
 [![Built with Rust](https://img.shields.io/badge/built%20with-Rust-orange.svg)](https://www.rust-lang.org/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
@@ -206,7 +206,7 @@ See the "Features" section for full command list.
 > Windows users: see Manual Installation below.
 
 ```bash
-curl -fsSL https://github.com/SaladDay/cc-switch-cli/releases/latest/download/install.sh | bash
+curl -fsSL https://github.com/66jiujiu99/cc-switch-cli/releases/latest/download/install.sh | bash
 ```
 
 This installs `cc-switch` to `~/.local/bin`. Set `CC_SWITCH_INSTALL_DIR` to change the target directory.
@@ -221,7 +221,7 @@ This installs `cc-switch` to `~/.local/bin`. Set `CC_SWITCH_INSTALL_DIR` to chan
 
 ```bash
 # Download Universal Binary (recommended, supports Apple Silicon + Intel)
-curl -LO https://github.com/saladday/cc-switch-cli/releases/latest/download/cc-switch-cli-darwin-universal.tar.gz
+curl -LO https://github.com/66jiujiu99/cc-switch-cli/releases/latest/download/cc-switch-cli-darwin-universal.tar.gz
 
 # Extract
 tar -xzf cc-switch-cli-darwin-universal.tar.gz
@@ -240,7 +240,7 @@ xattr -cr /usr/local/bin/cc-switch
 
 ```bash
 # Download
-curl -LO https://github.com/saladday/cc-switch-cli/releases/latest/download/cc-switch-cli-linux-x64-musl.tar.gz
+curl -LO https://github.com/66jiujiu99/cc-switch-cli/releases/latest/download/cc-switch-cli-linux-x64-musl.tar.gz
 
 # Extract
 tar -xzf cc-switch-cli-linux-x64-musl.tar.gz
@@ -256,7 +256,7 @@ sudo mv cc-switch /usr/local/bin/
 
 ```bash
 # For Raspberry Pi or ARM servers
-curl -LO https://github.com/saladday/cc-switch-cli/releases/latest/download/cc-switch-cli-linux-arm64-musl.tar.gz
+curl -LO https://github.com/66jiujiu99/cc-switch-cli/releases/latest/download/cc-switch-cli-linux-arm64-musl.tar.gz
 tar -xzf cc-switch-cli-linux-arm64-musl.tar.gz
 chmod +x cc-switch
 sudo mv cc-switch /usr/local/bin/
@@ -266,7 +266,7 @@ sudo mv cc-switch /usr/local/bin/
 
 ```powershell
 # Download the zip file
-# https://github.com/saladday/cc-switch-cli/releases/latest/download/cc-switch-cli-windows-x64.zip
+# https://github.com/66jiujiu99/cc-switch-cli/releases/latest/download/cc-switch-cli-windows-x64.zip
 
 # After extracting, move cc-switch.exe to a PATH directory, e.g.:
 move cc-switch.exe C:\Windows\System32\
@@ -283,6 +283,8 @@ If you are using Homebrew on your machine, you can use Homebrew to install cc-sw
 brew install cc-switch-cli
 ```
 
+> **Note:** the Homebrew formula belongs to the upstream project and tracks upstream releases (including its self-update target and signing key). To run this fork's releases, prefer Method 1 or build from source.
+
 Update:
 ```
 brew upgrade cc-switch-cli
@@ -296,7 +298,7 @@ If you installed cc-switch via Homebrew, please use Homebrew to upgrade cc-switc
 
 **Build:**
 ```bash
-git clone https://github.com/saladday/cc-switch-cli.git
+git clone https://github.com/66jiujiu99/cc-switch-cli.git
 cd cc-switch-cli/src-tauri
 cargo build --release
 
@@ -340,6 +342,17 @@ cc-switch provider stream-check <id> # Run stream health check
 cc-switch provider fetch-models <id> # Fetch remote model list
 cc-switch provider export <id> --output ~/.claude/settings-demo.json # Custom settings file path
 ```
+
+### 🔗 Deep Link Import
+
+Import providers, MCP servers, prompts, and skills from a `ccswitch://v1/import?...` deep link by pasting the URL, instead of filling in fields by hand.
+
+```bash
+cc-switch deeplink 'ccswitch://v1/import?resource=provider&app=codex&name=Demo&endpoint=...&apiKey=...'  # Import from a URL argument
+cc-switch deeplink                                                                                       # Prompt to paste the deep link interactively
+```
+
+In the TUI, press `i` on the Providers page to open the import overlay, paste the deep link, and press Enter. Invalid links are reported inline and the overlay keeps the pasted URL for editing; the target app and resource type come from the URL itself.
 
 ### 🔐 Managed Accounts
 
@@ -695,7 +708,7 @@ cc-switch --app codex provider list
 
 <br>
 
-Please open an issue on our [GitHub Issues](https://github.com/saladday/cc-switch-cli/issues) page with:
+Please open an issue on our [GitHub Issues](https://github.com/66jiujiu99/cc-switch-cli/issues) page with:
 - Detailed description of the problem or feature request
 - Steps to reproduce (for bugs)
 - Your system information (OS, version)
@@ -731,7 +744,7 @@ cargo test                           # Run tests
 Embedding consumers can omit CLI/TUI dependencies:
 
 ```toml
-cc-switch = { git = "https://github.com/SaladDay/cc-switch-cli.git", default-features = false }
+cc-switch = { git = "https://github.com/66jiujiu99/cc-switch-cli.git", default-features = false }
 ```
 
 The `cli` feature is enabled by default and is required for the `cc-switch` binary.

@@ -2814,18 +2814,6 @@ mod tests {
     }
 
     #[test]
-    fn providers_i_key_is_noop() {
-        let mut app = App::new(Some(AppType::Claude));
-        app.route = Route::Providers;
-        app.focus = Focus::Content;
-
-        let action = app.on_key(key(KeyCode::Char('i')), &UiData::default());
-
-        assert!(matches!(action, Action::None));
-        assert!(matches!(app.overlay, Overlay::None));
-    }
-
-    #[test]
     fn providers_s_key_triggers_switch_action() {
         let mut app = App::new(Some(AppType::Claude));
         app.route = Route::Providers;
@@ -20886,5 +20874,63 @@ mod tests {
                 ..
             }) if model_id == "claude-sonnet-4-5"
         ));
+    }
+
+    #[test]
+    fn providers_key_i_opens_deeplink_import_overlay() {
+        let mut app = App::new(Some(AppType::Claude));
+        app.route = Route::Providers;
+        app.focus = Focus::Content;
+
+        let action = app.on_key(key(KeyCode::Char('i')), &UiData::default());
+
+        assert!(matches!(action, Action::None));
+        assert!(matches!(
+            &app.overlay,
+            Overlay::TextInput(TextInputState { submit, .. })
+                if *submit == TextSubmit::DeeplinkUrl
+        ));
+    }
+
+    #[test]
+    fn deeplink_overlay_invalid_url_keeps_value_and_shows_error() {
+        let mut app = App::new(Some(AppType::Claude));
+        app.route = Route::Providers;
+        app.focus = Focus::Content;
+        app.open_deeplink_import_prompt("not-a-deeplink".to_string());
+
+        let action = app.on_key(key(KeyCode::Enter), &UiData::default());
+
+        assert!(matches!(action, Action::None));
+        assert!(matches!(
+            &app.overlay,
+            Overlay::TextInput(TextInputState { input, submit, .. })
+                if input.value == "not-a-deeplink" && *submit == TextSubmit::DeeplinkUrl
+        ));
+        assert!(matches!(
+            app.toast.as_ref(),
+            Some(Toast {
+                kind: ToastKind::Error,
+                ..
+            })
+        ));
+    }
+
+    #[test]
+    fn deeplink_overlay_valid_url_returns_import_action() {
+        let mut app = App::new(Some(AppType::Claude));
+        app.route = Route::Providers;
+        app.focus = Focus::Content;
+        let url = "ccswitch://v1/import?resource=provider&app=claude&name=Demo";
+        app.open_deeplink_import_prompt(url.to_string());
+
+        let action = app.on_key(key(KeyCode::Enter), &UiData::default());
+
+        assert!(matches!(
+            action,
+            Action::DeeplinkImport { ref url }
+                if url == "ccswitch://v1/import?resource=provider&app=claude&name=Demo"
+        ));
+        assert!(matches!(app.overlay, Overlay::None));
     }
 }

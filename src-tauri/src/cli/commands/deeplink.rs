@@ -1,14 +1,17 @@
 use clap::Args;
+use inquire::Text;
 
 use crate::app_config::AppType;
+use crate::cli::i18n::texts;
 use crate::cli::ui::{info, success};
 use crate::error::AppError;
 use crate::store::AppState;
 
 #[derive(Args, Debug, Clone)]
 pub struct DeeplinkCommand {
-    /// The ccswitch://v1/import?... URL to import
-    pub url: String,
+    /// The ccswitch://v1/import?... URL to import; when omitted you are
+    /// prompted to paste the deep link interactively
+    pub url: Option<String>,
 }
 
 pub fn execute(cmd: DeeplinkCommand, app: Option<AppType>) -> Result<(), AppError> {
@@ -19,7 +22,8 @@ pub fn execute(cmd: DeeplinkCommand, app: Option<AppType>) -> Result<(), AppErro
         ));
     }
 
-    let request = crate::parse_deeplink_url(&cmd.url)?;
+    let url = resolve_deeplink_url(cmd.url)?;
+    let request = crate::parse_deeplink_url(&url)?;
     let state = AppState::try_new()?;
 
     match request.resource.as_str() {
@@ -27,10 +31,30 @@ pub fn execute(cmd: DeeplinkCommand, app: Option<AppType>) -> Result<(), AppErro
         "mcp" => import_mcp(&state, request),
         "prompt" => import_prompt(&state, request),
         "skill" => import_skill(&state, request),
-        other => Err(AppError::InvalidInput(format!(
-            "Unsupported resource type: {other}"
-        ))),
+        other => Err(AppError::InvalidInput(
+            texts::deeplink_unsupported_resource_error(other),
+        )),
     }
+}
+
+/// Resolve the deep link URL from the positional argument, or prompt for an
+/// interactive paste when it was omitted. Surrounding whitespace (including
+/// the trailing newline a terminal paste appends) is trimmed.
+fn resolve_deeplink_url(url: Option<String>) -> Result<String, AppError> {
+    let url = match url {
+        Some(url) => url,
+        None => Text::new(texts::deeplink_paste_prompt())
+            .with_help_message(texts::deeplink_paste_help())
+            .prompt()
+            .map_err(|e| AppError::Message(texts::input_failed_error(&e.to_string())))?,
+    };
+    let trimmed = url.trim();
+    if trimmed.is_empty() {
+        return Err(AppError::InvalidInput(
+            texts::deeplink_url_empty_error().to_string(),
+        ));
+    }
+    Ok(trimmed.to_string())
 }
 
 fn import_provider(
@@ -110,7 +134,7 @@ mod tests {
 
     fn command() -> DeeplinkCommand {
         DeeplinkCommand {
-            url: "ccswitch://v1/import?resource=provider&app=claude&name=Demo".to_string(),
+            url: Some("ccswitch://v1/import?resource=provider&app=claude&name=Demo".to_string()),
         }
     }
 
@@ -139,7 +163,7 @@ mod tests {
         // An invalid URL would normally fail during parsing; the `--app` guard
         // must short-circuit first so the error always points at the flag.
         let cmd = DeeplinkCommand {
-            url: "not-a-valid-deeplink".to_string(),
+            url: Some("not-a-valid-deeplink".to_string()),
         };
 
         let err = execute(cmd, Some(AppType::Claude))
@@ -148,6 +172,23 @@ mod tests {
         assert!(
             matches!(&err, AppError::InvalidInput(message) if message.contains("`--app` cannot be used with `deeplink`")),
             "expected the `--app` rejection, got {err:?}"
+        );
+    }
+
+    #[test]
+    fn resolve_deeplink_url_trims_surrounding_whitespace() {
+        let url = resolve_deeplink_url(Some("  ccswitch://v1/import?resource=prompt  \n".into()))
+            .expect("argument URLs should be accepted after trimming");
+        assert_eq!(url, "ccswitch://v1/import?resource=prompt");
+    }
+
+    #[test]
+    fn resolve_deeplink_url_rejects_whitespace_only_argument() {
+        let err = resolve_deeplink_url(Some("   \n".into()))
+            .expect_err("a whitespace-only URL argument should be rejected");
+        assert!(
+            matches!(err, AppError::InvalidInput(_)),
+            "expected InvalidInput, got {err:?}"
         );
     }
 }

@@ -106,7 +106,7 @@ pub enum Commands {
     #[command(subcommand)]
     Env(commands::env::EnvCommand),
 
-    /// Import a resource (provider/mcp/prompt/skill) from a ccswitch:// deep link URL
+    /// Import a resource (provider/mcp/prompt/skill) from a ccswitch:// deep link URL (prompts for the URL when omitted)
     Deeplink(commands::deeplink::DeeplinkCommand),
 
     /// Update cc-switch binary to latest release

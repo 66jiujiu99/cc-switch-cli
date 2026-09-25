@@ -113,6 +113,7 @@ pub(crate) mod providers {
         LaunchTemp,
         Failover,
         SetDefault,
+        ImportDeeplink,
     }
 
     pub(crate) const BINDINGS: &[Binding<Intent>] = &[
@@ -193,6 +194,13 @@ pub(crate) mod providers {
             label: set_default_label,
             shown: set_default_shown,
         },
+        Binding {
+            display: "i",
+            keys: &[KeyCode::Char('i')],
+            intent: Intent::ImportDeeplink,
+            label: |_, _| texts::tui_key_import_deeplink(),
+            shown: deeplink_shown,
+        },
     ];
 
     pub(crate) fn intent_for(key: KeyCode) -> Option<Intent> {
@@ -242,6 +250,12 @@ pub(crate) mod providers {
         // While a cold-switched app is still loading, the list isn't really
         // empty — offer nothing rather than a misleading "add first".
         !(data.providers.rows.is_empty() && data.providers.loading)
+    }
+
+    fn deeplink_shown(_app: &App, _data: &UiData) -> bool {
+        // Deep link import is the natural bootstrap path for an empty list,
+        // and stays useful on a populated one.
+        true
     }
 
     fn add_label(_app: &App, data: &UiData) -> &'static str {

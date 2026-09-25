@@ -621,14 +621,14 @@ pub mod texts {
     pub fn tui_help_line_providers(app_type: &crate::app_config::AppType) -> &'static str {
         if matches!(app_type, crate::app_config::AppType::Hermes) {
             if is_chinese() {
-                "供应商：Space 添加/移除，Enter/e 编辑，a 新增，c 复制，d 删除，t 测试，r 刷新，x 启用"
+                "供应商：Space 添加/移除，Enter/e 编辑，a 新增，c 复制，d 删除，t 测试，r 刷新，x 启用，i 导入深链"
             } else {
-                "Providers: Space add/remove, Enter/e edit, a add, c copy, d delete, t test, r refresh, x enable"
+                "Providers: Space add/remove, Enter/e edit, a add, c copy, d delete, t test, r refresh, x enable, i import deep link"
             }
         } else if is_chinese() {
-            "供应商：Space 切换，Enter/e 编辑，a 新增，c 复制，d 删除，t 测试，r 刷新，o 临时启动(Claude/Codex)，f 管理故障转移(Claude/Codex/Gemini)，x 设为默认(OpenClaw)"
+            "供应商：Space 切换，Enter/e 编辑，a 新增，c 复制，d 删除，t 测试，r 刷新，o 临时启动(Claude/Codex)，f 管理故障转移(Claude/Codex/Gemini)，x 设为默认(OpenClaw)，i 导入深链"
         } else {
-            "Providers: Space switch, Enter/e edit, a add, c copy, d delete, t test, r refresh, o launch temp (Claude/Codex), f manage failover (Claude/Codex/Gemini), x set default (OpenClaw)"
+            "Providers: Space switch, Enter/e edit, a add, c copy, d delete, t test, r refresh, o launch temp (Claude/Codex), f manage failover (Claude/Codex/Gemini), x set default (OpenClaw), i import deep link"
         }
     }
 
@@ -7989,6 +7989,93 @@ pub mod texts {
         }
     }
 
+    pub fn tui_key_import_deeplink() -> &'static str {
+        if is_chinese() {
+            "导入深链"
+        } else {
+            "Import deep link"
+        }
+    }
+
+    pub fn tui_deeplink_import_title() -> &'static str {
+        if is_chinese() {
+            "从深链导入"
+        } else {
+            "Import from Deep Link"
+        }
+    }
+
+    pub fn tui_deeplink_import_prompt() -> &'static str {
+        if is_chinese() {
+            "粘贴 ccswitch:// URL："
+        } else {
+            "Paste a ccswitch:// URL:"
+        }
+    }
+
+    pub fn tui_toast_deeplink_invalid(err: &str) -> String {
+        if is_chinese() {
+            format!("深链解析失败: {err}")
+        } else {
+            format!("Invalid deep link: {err}")
+        }
+    }
+
+    pub fn tui_toast_deeplink_provider_imported(
+        name: &str,
+        app: &str,
+        id: &str,
+        switched: bool,
+    ) -> String {
+        if is_chinese() {
+            if switched {
+                format!("已导入并切换到供应商 '{name}' (id: {id}) → {app}")
+            } else {
+                format!("已导入供应商 '{name}' (id: {id}) → {app}")
+            }
+        } else if switched {
+            format!("Imported and switched to provider '{name}' (id: {id}) for {app}")
+        } else {
+            format!("Imported provider '{name}' (id: {id}) for {app}")
+        }
+    }
+
+    pub fn tui_toast_deeplink_mcp_imported(count: usize, apps: &str, failed: usize) -> String {
+        if is_chinese() {
+            if failed > 0 {
+                format!("已导入 {count} 个 MCP 服务器 → {apps}，{failed} 个失败")
+            } else {
+                format!("已导入 {count} 个 MCP 服务器 → {apps}")
+            }
+        } else if failed > 0 {
+            format!("Imported {count} MCP server(s) for {apps}, {failed} failed")
+        } else {
+            format!("Imported {count} MCP server(s) for {apps}")
+        }
+    }
+
+    pub fn tui_toast_deeplink_prompt_imported(name: &str, app: &str, enabled: bool) -> String {
+        if is_chinese() {
+            if enabled {
+                format!("已导入并启用提示词 '{name}' → {app}")
+            } else {
+                format!("已导入提示词 '{name}' → {app}")
+            }
+        } else if enabled {
+            format!("Imported and enabled prompt '{name}' for {app}")
+        } else {
+            format!("Imported prompt '{name}' for {app}")
+        }
+    }
+
+    pub fn tui_toast_deeplink_skill_imported(repo: &str) -> String {
+        if is_chinese() {
+            format!("已添加技能仓库 '{repo}'")
+        } else {
+            format!("Added skill repo '{repo}'")
+        }
+    }
+
     pub fn tui_config_backup_title() -> &'static str {
         if is_chinese() {
             "备份配置"
@@ -10984,6 +11071,39 @@ pub mod texts {
             format!("输入失败: {}", err)
         } else {
             format!("Input failed: {}", err)
+        }
+    }
+
+    // Deep link import
+    pub fn deeplink_paste_prompt() -> &'static str {
+        if is_chinese() {
+            "深链 URL："
+        } else {
+            "Deep link URL:"
+        }
+    }
+
+    pub fn deeplink_paste_help() -> &'static str {
+        if is_chinese() {
+            "粘贴 ccswitch://v1/import?... 链接后回车"
+        } else {
+            "Paste a ccswitch://v1/import?... URL and press Enter"
+        }
+    }
+
+    pub fn deeplink_url_empty_error() -> &'static str {
+        if is_chinese() {
+            "深链 URL 为空。"
+        } else {
+            "Deep link URL is empty."
+        }
+    }
+
+    pub fn deeplink_unsupported_resource_error(resource: &str) -> String {
+        if is_chinese() {
+            format!("不支持的资源类型: {resource}")
+        } else {
+            format!("Unsupported resource type: {resource}")
         }
     }
 

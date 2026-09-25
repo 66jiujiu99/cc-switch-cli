@@ -6,8 +6,8 @@
 
 **通过交互式 TUI 或脚本化 CLI，统一管理 Claude Code、Codex、Gemini、OpenCode、Hermes、OpenClaw 和 Pi。**
 
-[![Version](https://img.shields.io/badge/version-5.10.5-blue.svg)](https://github.com/saladday/cc-switch-cli/releases)
-[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](https://github.com/saladday/cc-switch-cli/releases)
+[![Version](https://img.shields.io/badge/version-5.11.0-blue.svg)](https://github.com/66jiujiu99/cc-switch-cli/releases)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](https://github.com/66jiujiu99/cc-switch-cli/releases)
 [![Built with Rust](https://img.shields.io/badge/built%20with-Rust-orange.svg)](https://www.rust-lang.org/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
@@ -205,7 +205,7 @@ cc-switch --app pi provider list        # 管理 Pi 供应商
 > Windows 用户请参考下方手动安装。
 
 ```bash
-curl -fsSL https://github.com/SaladDay/cc-switch-cli/releases/latest/download/install.sh | bash
+curl -fsSL https://github.com/66jiujiu99/cc-switch-cli/releases/latest/download/install.sh | bash
 ```
 
 默认安装到 `~/.local/bin`。设置 `CC_SWITCH_INSTALL_DIR` 可自定义安装目录。
@@ -220,7 +220,7 @@ curl -fsSL https://github.com/SaladDay/cc-switch-cli/releases/latest/download/in
 
 ```bash
 # 下载 Universal Binary（推荐，支持 Apple Silicon + Intel）
-curl -LO https://github.com/saladday/cc-switch-cli/releases/latest/download/cc-switch-cli-darwin-universal.tar.gz
+curl -LO https://github.com/66jiujiu99/cc-switch-cli/releases/latest/download/cc-switch-cli-darwin-universal.tar.gz
 
 # 解压
 tar -xzf cc-switch-cli-darwin-universal.tar.gz
@@ -239,7 +239,7 @@ xattr -cr /usr/local/bin/cc-switch
 
 ```bash
 # 下载
-curl -LO https://github.com/saladday/cc-switch-cli/releases/latest/download/cc-switch-cli-linux-x64-musl.tar.gz
+curl -LO https://github.com/66jiujiu99/cc-switch-cli/releases/latest/download/cc-switch-cli-linux-x64-musl.tar.gz
 
 # 解压
 tar -xzf cc-switch-cli-linux-x64-musl.tar.gz
@@ -255,7 +255,7 @@ sudo mv cc-switch /usr/local/bin/
 
 ```bash
 # 适用于树莓派或 ARM 服务器
-curl -LO https://github.com/saladday/cc-switch-cli/releases/latest/download/cc-switch-cli-linux-arm64-musl.tar.gz
+curl -LO https://github.com/66jiujiu99/cc-switch-cli/releases/latest/download/cc-switch-cli-linux-arm64-musl.tar.gz
 tar -xzf cc-switch-cli-linux-arm64-musl.tar.gz
 chmod +x cc-switch
 sudo mv cc-switch /usr/local/bin/
@@ -265,7 +265,7 @@ sudo mv cc-switch /usr/local/bin/
 
 ```powershell
 # 下载 zip 文件
-# https://github.com/saladday/cc-switch-cli/releases/latest/download/cc-switch-cli-windows-x64.zip
+# https://github.com/66jiujiu99/cc-switch-cli/releases/latest/download/cc-switch-cli-windows-x64.zip
 
 # 解压后将 cc-switch.exe 移动到 PATH 目录，例如：
 move cc-switch.exe C:\Windows\System32\
@@ -284,6 +284,8 @@ move cc-switch.exe C:\Windows\System32\
 brew install cc-switch-cli
 ```
 
+> **注意**：该 Homebrew formula 属于上游项目，安装的是上游版本（其自更新目标与签名密钥均指向上游）。如需使用本 fork 的发布版本，请使用方法 1 或源码编译。
+
 更新：
 
 ```bash
@@ -299,7 +301,7 @@ brew upgrade cc-switch-cli
 
 **构建：**
 ```bash
-git clone https://github.com/saladday/cc-switch-cli.git
+git clone https://github.com/66jiujiu99/cc-switch-cli.git
 cd cc-switch-cli/src-tauri
 cargo build --release
 
@@ -343,6 +345,17 @@ cc-switch provider stream-check <id> # 执行流式健康检查
 cc-switch provider fetch-models <id> # 拉取远端模型列表
 cc-switch provider export <id> --output ~/.claude/settings-demo.json # 自定义 settings 文件路径
 ```
+
+### 🔗 深链导入
+
+通过粘贴 `ccswitch://v1/import?...` 深链 URL，一键导入供应商、MCP 服务器、提示词和技能，无需手动填写字段。
+
+```bash
+cc-switch deeplink 'ccswitch://v1/import?resource=provider&app=codex&name=Demo&endpoint=...&apiKey=...'  # 通过 URL 参数导入
+cc-switch deeplink                                                                                       # 交互式提示粘贴深链
+```
+
+TUI 中在供应商页按 `i` 打开导入弹窗，粘贴深链后回车即可。无效链接会提示错误并保留已粘贴内容便于修改；目标应用与资源类型由 URL 本身决定。
 
 ### 🔐 托管账号
 
@@ -697,7 +710,7 @@ cc-switch --app codex provider list
 
 <br>
 
-请在我们的 [GitHub Issues](https://github.com/saladday/cc-switch-cli/issues) 页面提交问题，并包含：
+请在我们的 [GitHub Issues](https://github.com/66jiujiu99/cc-switch-cli/issues) 页面提交问题，并包含：
 - 问题或功能请求的详细描述
 - 复现步骤（针对 bug）
 - 你的系统信息（操作系统、版本）
@@ -733,7 +746,7 @@ cargo test                           # 运行测试
 嵌入式调用方可以排除 CLI/TUI 依赖：
 
 ```toml
-cc-switch = { git = "https://github.com/SaladDay/cc-switch-cli.git", default-features = false }
+cc-switch = { git = "https://github.com/66jiujiu99/cc-switch-cli.git", default-features = false }
 ```
 
 `cli` 功能默认启用，并且是构建 `cc-switch` 二进制文件的必要条件。
